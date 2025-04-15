@@ -1,0 +1,11 @@
+- Init a NodeJS Project
+- Simple web service with ExpressJS
+- CRUD User Route with object store
+- Use Bcrypt for password harsh
+- Create Login route and generate token for route
+- Create auth profile route to validate the token
+- Build auth route
+- Configure JSON parser
+- Configure ORM with UserModel
+- Update user route with ORM
+
