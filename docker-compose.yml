@@ -1,0 +1,136 @@
+version: '3.8'
+
+services:
+  # Reverse Proxy (entry point for users)
+  reverse-proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/reverse-proxy.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web-server
+      - load-balancer
+    networks:
+      - frontend-network
+    restart: always
+
+  # Web Server with Cache (serves frontend content)
+  web-server:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/web-server.conf:/etc/nginx/nginx.conf:ro
+      - ./web-frontend/build:/usr/share/nginx/html
+      - nginx-cache:/var/cache/nginx
+    depends_on:
+      - frontend
+    networks:
+      - frontend-network
+    restart: always
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./web-frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./web-frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=production
+    networks:
+      - frontend-network
+    restart: always
+
+  # Load Balancer for Backend Servers
+  load-balancer:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/load-balancer.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend1
+      - backend2
+      - backend3
+    networks:
+      - frontend-network
+      - backend-network
+    restart: always
+
+  # Backend Server 1
+  backend1:
+    build:
+      context: ./web-backend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/app_database
+      - PORT=3000
+    volumes:
+      - ./web-backend:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+      - frontend-network
+    restart: always
+
+  # Backend Server 2
+  backend2:
+    build:
+      context: ./web-backend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/app_database
+      - PORT=3000
+    volumes:
+      - ./web-backend:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+      - frontend-network
+    restart: always
+
+  # Backend Server 3
+  backend3:
+    build:
+      context: ./web-backend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/app_database
+      - PORT=3000
+    volumes:
+      - ./web-backend:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+      - frontend-network
+    restart: always
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=app_database
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend-network
+
+networks:
+  frontend-network:
+  backend-network:
+
+volumes:
+  postgres-data:
+  nginx-cache:
