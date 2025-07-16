@@ -16,6 +16,7 @@ services:
     restart: always
 
   # Web Server with Cache (serves frontend content)
+  # Assuming the frontend is built and the build output is in the web-frontend/build directory
   web-server:
     image: nginx:alpine
     volumes:
@@ -28,19 +29,20 @@ services:
       - frontend-network
     restart: always
 
-  # React Frontend
-  frontend:
-    build:
-      context: ./web-frontend
-      dockerfile: Dockerfile
-    volumes:
-      - ./web-frontend:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=production
-    networks:
-      - frontend-network
-    restart: always
+  # React Frontend - used for local development 
+  # frontend:
+  #   build:
+  #     context: ./web-frontend
+  #     dockerfile: Dockerfile
+  #   # volumes below is used for local development 
+  #   # volumes:
+  #   #   - ./web-frontend:/app
+  #   #   - /app/node_modules
+  #   environment:
+  #     - NODE_ENV=production
+  #   networks:
+  #     - frontend-network
+  #   restart: always
 
   # Load Balancer for Backend Servers
   load-balancer:
@@ -65,9 +67,10 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/app_database
       - PORT=3000
-    volumes:
-      - ./web-backend:/app
-      - /app/node_modules
+    # volumes below is used for local development 
+    # volumes:
+    #   - ./web-backend:/app
+    #   - /app/node_modules
     depends_on:
       - postgres
     networks:
@@ -84,9 +87,10 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/app_database
       - PORT=3000
-    volumes:
-      - ./web-backend:/app
-      - /app/node_modules
+    # volumes below is used for local development 
+    # volumes:
+    #   - ./web-backend:/app
+    #   - /app/node_modules
     depends_on:
       - postgres
     networks:
@@ -103,9 +107,10 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/app_database
       - PORT=3000
-    volumes:
-      - ./web-backend:/app
-      - /app/node_modules
+    # volumes below is used for local development 
+    # volumes:
+    #   - ./web-backend:/app
+    #   - /app/node_modules
     depends_on:
       - postgres
     networks:
