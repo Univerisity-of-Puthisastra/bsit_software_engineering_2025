@@ -30,27 +30,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup SSH key
+      - name: Setup SSH agent with private key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add remote host to known_hosts and SSH config
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-
-          # Write private key (strip carriage returns)
-          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-
-          # Add server fingerprint to known_hosts
           ssh-keyscan -p ${{ vars.SSH_PORT || 22 }} -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
-
-          # SSH config so Docker uses the correct key and port
           cat >> ~/.ssh/config << EOF
-          Host ${{ vars.SSH_HOST }}
-            HostName ${{ vars.SSH_HOST }}
-            User ${{ vars.SSH_USER }}
-            Port ${{ vars.SSH_PORT || 22 }}
-            IdentityFile $HOME/.ssh/deploy_key
-            StrictHostKeyChecking no
-          EOF
+Host ${{ vars.SSH_HOST }}
+  Port ${{ vars.SSH_PORT || 22 }}
+  StrictHostKeyChecking no
+EOF
           chmod 600 ~/.ssh/config
 
       - name: Create Docker context pointing to remote host
