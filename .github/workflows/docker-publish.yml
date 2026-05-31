@@ -69,6 +69,7 @@ jobs:
         working-directory: ./web-frontend
         env:
           REACT_APP_BACKEND_API: ${{ vars.REACT_APP_BACKEND_API }}
+          CI: false
         run: |
           npm ci
           npm run build

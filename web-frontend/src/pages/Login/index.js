@@ -30,12 +30,12 @@ const Login = () => {
         { withCredentials: true}
       );
       const { token } = response.data;
-      alert(token);
 
       if (token) {
         localStorage.setItem("token", token);
         context.setLogin(true);
         context.setToken(token);
+        navigate("/");
       }
     } catch (error) {
       console.log("Request fail", error);
