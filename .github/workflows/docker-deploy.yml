@@ -33,14 +33,30 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          # Write private key (strip carriage returns)
           printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+
+          # Add server fingerprint to known_hosts
           ssh-keyscan -p ${{ vars.SSH_PORT || 22 }} -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
+
+          # SSH config so Docker uses the correct key and port
+          cat >> ~/.ssh/config << EOF
+          Host ${{ vars.SSH_HOST }}
+            HostName ${{ vars.SSH_HOST }}
+            User ${{ vars.SSH_USER }}
+            Port ${{ vars.SSH_PORT || 22 }}
+            IdentityFile $HOME/.ssh/deploy_key
+            StrictHostKeyChecking no
+          EOF
+          chmod 600 ~/.ssh/config
 
       - name: Create Docker context pointing to remote host
         run: |
           docker context create remote \
-            --docker "host=ssh://${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:${{ vars.SSH_PORT || 22 }},key=$HOME/.ssh/deploy_key"
+            --docker "host=ssh://${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}"
           docker context use remote
 
       - name: Log in to Docker Hub (on remote daemon)
