@@ -32,9 +32,11 @@ jobs:
           dockerfile: ./web-backend/Dockerfile
           push: true
           tags: |
-            vengleab/csm-demo:backend
+            vengleab/cms-demo:backend
           build-args: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
+            NODE_ENV=production
+            PORT=${{ vars.PORT }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -66,7 +68,7 @@ jobs:
       - name: Install dependencies and build React app
         working-directory: ./web-frontend
         env:
-          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_BACKEND_API: ${{ vars.REACT_APP_BACKEND_API }}
         run: |
           npm ci
           npm run build
@@ -78,6 +80,8 @@ jobs:
           dockerfile: ./web-frontend/Dockerfile
           push: true
           tags: |
-            vengleab/csm-demo:frontend
+            vengleab/cms-demo:frontend
+          build-args: |
+            REACT_APP_BACKEND_API=${{ vars.REACT_APP_BACKEND_API }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
