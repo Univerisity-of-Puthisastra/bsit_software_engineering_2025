@@ -17,10 +17,9 @@ services:
   # Web Server with Cache (serves frontend content)
   # Assuming the frontend is built and the build output is in the web-frontend/build directory
   web-server:
-    image: nginx:alpine
+    image: vengleab/cms-demo:frontend
     volumes:
       - ./nginx/web-server.conf:/etc/nginx/nginx.conf:ro
-      - ./web-frontend/build:/usr/share/nginx/html
       - nginx-cache:/var/cache/nginx
     networks:
       - frontend-network
@@ -57,9 +56,7 @@ services:
 
   # Backend Server 1
   backend1:
-    build:
-      context: ./web-backend
-      dockerfile: Dockerfile
+    image: vengleab/cms-demo:backend
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/app_database
@@ -78,9 +75,7 @@ services:
 
   # Backend Server 2
   backend2:
-    build:
-      context: ./web-backend
-      dockerfile: Dockerfile
+    image: vengleab/cms-demo:backend
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/app_database
@@ -99,9 +94,7 @@ services:
 
   # Backend Server 3
   backend3:
-    build:
-      context: ./web-backend
-      dockerfile: Dockerfile
+    image: vengleab/cms-demo:backend
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/app_database
