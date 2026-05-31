@@ -40,7 +40,7 @@ jobs:
       - name: Create Docker context pointing to remote host
         run: |
           docker context create remote \
-            --docker "host=ssh://${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:${{ vars.SSH_PORT || 22 }},key=/root/.ssh/deploy_key"
+            --docker "host=ssh://${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:${{ vars.SSH_PORT || 22 }},key=$HOME/.ssh/deploy_key"
           docker context use remote
 
       - name: Log in to Docker Hub (on remote daemon)
