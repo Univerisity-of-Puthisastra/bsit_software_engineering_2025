@@ -36,13 +36,12 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Add remote host to known_hosts and SSH config
+        env:
+          SSH_HOST: ${{ vars.SSH_HOST }}
+          SSH_PORT: ${{ vars.SSH_PORT || 22 }}
         run: |
-          ssh-keyscan -p ${{ vars.SSH_PORT || 22 }} -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
-          cat >> ~/.ssh/config << EOF
-Host ${{ vars.SSH_HOST }}
-  Port ${{ vars.SSH_PORT || 22 }}
-  StrictHostKeyChecking no
-EOF
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          printf "Host %s\n  Port %s\n  StrictHostKeyChecking no\n" "$SSH_HOST" "$SSH_PORT" >> ~/.ssh/config
           chmod 600 ~/.ssh/config
 
       - name: Create Docker context pointing to remote host
