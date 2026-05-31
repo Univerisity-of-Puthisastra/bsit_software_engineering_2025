@@ -9,6 +9,11 @@ on:
   #   branches:
   #     - docker-compose
 
+  # Auto-trigger on push to docker-compose branch
+  push:
+    branches:
+      - docker-compose
+
   # Allow manual trigger from GitHub Actions UI
   workflow_dispatch:
 
