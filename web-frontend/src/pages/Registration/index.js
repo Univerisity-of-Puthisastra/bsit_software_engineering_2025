@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./registration.scss";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -68,9 +68,9 @@ const Registration = () => {
         </form>
 
         <div id="formFooter">
-          <a className="underlineHover" onClick={() => navigate("/login")}>
+          <Link className="underlineHover" to="/login">
             Already have an account? Login
-          </a>
+          </Link>
         </div>
       </div>
     </div>

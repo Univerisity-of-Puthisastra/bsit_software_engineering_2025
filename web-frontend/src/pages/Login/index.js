@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import "./login.scss";
 import axios from "axios";
 import UserContext from "../../context/user-token";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
   const context = useContext(UserContext);
@@ -75,9 +75,9 @@ const Login = () => {
         </form>
 
         <div id="formFooter">
-          <a className="underlineHover" onClick={() => navigate("/register")}>
+          <Link className="underlineHover" to="/register">
             Don't have an account? Register
-          </a>
+          </Link>
         </div>
       </div>
     </div>
