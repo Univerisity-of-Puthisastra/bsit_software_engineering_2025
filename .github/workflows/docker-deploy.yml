@@ -30,12 +30,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p ${{ secrets.SSH_PORT || 22 }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p ${{ vars.SSH_PORT || 22 }} -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Create Docker context pointing to remote host
         run: |
           docker context create remote \
-            --docker "host=ssh://${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PORT || 22 }},key=/root/.ssh/deploy_key"
+            --docker "host=ssh://${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:${{ vars.SSH_PORT || 22 }},key=/root/.ssh/deploy_key"
           docker context use remote
 
       - name: Log in to Docker Hub (on remote daemon)
