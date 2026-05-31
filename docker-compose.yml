@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # Reverse Proxy (entry point for users)
@@ -23,8 +22,6 @@ services:
       - ./nginx/web-server.conf:/etc/nginx/nginx.conf:ro
       - ./web-frontend/build:/usr/share/nginx/html
       - nginx-cache:/var/cache/nginx
-    depends_on:
-      - frontend
     networks:
       - frontend-network
     restart: always
