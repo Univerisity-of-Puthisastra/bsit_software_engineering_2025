@@ -1,10 +1,10 @@
 name: Build and Push Docker Images
 
-on:
-  push:
-    branches:
-      - docker-compose
-  workflow_dispatch: # manual only for now
+# on:
+#   push:
+#     branches:
+#       - docker-compose
+#   workflow_dispatch: # manual only for now
 
 jobs:
   build-and-push-backend:
