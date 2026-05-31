@@ -2,12 +2,12 @@ name: Deploy via SSH
 
 on:
   # Triggers after the build-and-push workflow completes successfully
-  workflow_run:
-    workflows: ["Build and Push Docker Images"]
-    types:
-      - completed
-    branches:
-      - docker-compose
+  # workflow_run:
+  #   workflows: ["Build and Push Docker Images"]
+  #   types:
+  #     - completed
+  #   branches:
+  #     - docker-compose
 
   # Allow manual trigger from GitHub Actions UI
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
     environment: production
 
     # Only deploy if the triggering workflow succeeded (skip if it failed)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout repository
