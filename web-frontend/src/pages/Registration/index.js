@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 
 const Registration = () => {
   const navigate = useNavigate();
-  const [state, setState] = useState();
+  const [state, setState] = useState({ username: "", password: "" });
 
   const handleOnChange = (e) => {
     const value = e.target.value;
@@ -17,6 +17,10 @@ const Registration = () => {
     e.preventDefault();
 
     const { username, password } = state;
+    if (!username || !password) {
+      alert("Please fill in both username and password.");
+      return;
+    }
     const body = { username, password };
 
     try {
@@ -37,12 +41,16 @@ const Registration = () => {
   return (
     <div className="wrapper fadeInDown">
       <div id="formContent">
-        <div className="fadeIn first">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/User_font_awesome.svg/1200px-User_font_awesome.svg.png"
+        <div className="fadeIn first" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
             id="icon"
-            alt="User Icon"
-          />
+            style={{ width: "60px", height: "60px", margin: "20px auto", color: "#56baed" }}
+          >
+            <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
+          </svg>
         </div>
 
         <form onSubmit={handleSubmit}>
