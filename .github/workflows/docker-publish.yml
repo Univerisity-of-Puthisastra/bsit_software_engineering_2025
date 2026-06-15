@@ -1,0 +1,85 @@
+name: Build and Push Docker Images
+
+on:
+  workflow_dispatch: # manual only for now
+
+jobs:
+  build-and-push-backend:
+    name: Build & Push Backend Image
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./web-backend
+          dockerfile: ./web-backend/Dockerfile
+          push: true
+          tags: |
+            vengleab/cms-demo:backend
+          build-args: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            NODE_ENV=production
+            PORT=${{ vars.PORT }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-and-push-frontend:
+    name: Build & Push Frontend Image
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: web-frontend/package-lock.json
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Install dependencies and build React app
+        working-directory: ./web-frontend
+        env:
+          REACT_APP_BACKEND_API: ${{ vars.REACT_APP_BACKEND_API }}
+          CI: false
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./web-frontend
+          dockerfile: ./web-frontend/Dockerfile
+          push: true
+          tags: |
+            vengleab/cms-demo:frontend
+          build-args: |
+            REACT_APP_BACKEND_API=${{ vars.REACT_APP_BACKEND_API }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

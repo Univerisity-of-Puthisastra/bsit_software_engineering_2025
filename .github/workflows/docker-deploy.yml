@@ -1,0 +1,74 @@
+name: Deploy via SSH
+
+on:
+  # Triggers after the build-and-push workflow completes successfully
+  # workflow_run:
+  #   workflows: ["Build and Push Docker Images"]
+  #   types:
+  #     - completed
+  #   branches:
+  #     - docker-compose
+
+  # Auto-trigger on push to docker-compose branch
+  push:
+    branches:
+      - docker-compose
+
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Production Server
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Only deploy if the triggering workflow succeeded (skip if it failed)
+    # if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH agent with private key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE }}
+
+      - name: Add remote host to known_hosts and SSH config
+        env:
+          SSH_HOST: ${{ vars.SSH_HOST }}
+          SSH_PORT: ${{ vars.SSH_PORT || 22 }}
+        run: |
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          printf "Host %s\n  Port %s\n  StrictHostKeyChecking no\n" "$SSH_HOST" "$SSH_PORT" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+      - name: Create Docker context pointing to remote host
+        run: |
+          docker context create remote \
+            --docker "host=ssh://${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}"
+          docker context use remote
+
+      - name: Log in to Docker Hub (on remote daemon)
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | \
+            docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Pull latest images and deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REACT_APP_BACKEND_API: ${{ vars.REACT_APP_BACKEND_API }}
+          PORT: ${{ vars.PORT }}
+        run: |
+          echo "==> Pulling latest Docker images on remote host..."
+          docker compose pull
+
+          echo "==> Restarting services..."
+          docker compose up -d --remove-orphans
+
+          echo "==> Cleaning up old images..."
+          docker image prune -f
+
+          echo "==> Deployment complete!"
+          docker compose ps
