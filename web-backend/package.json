@@ -1,10 +1,11 @@
 {
-  "name": "backend-learning-2023",
+  "name": "backend-learning",
   "version": "1.0.0",
   "description": "- Init a NodeJS Project - Simple web service - CRUD User RoutE",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
@@ -13,11 +14,13 @@
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "jest": "^30.4.2",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9",
-    "prisma": "^5.8.1"
+    "prisma": "^5.8.1",
+    "supertest": "^7.2.2"
   }
 }
